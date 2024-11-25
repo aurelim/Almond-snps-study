@@ -1,0 +1,7 @@
+1   Almond_tree_Pdulcis_C_Asia
+2   Almond_tree_Pdulcis_Euro_1
+3   Almond_tree_Pdulcis_Euro_2
+4   Almond_tree_Pdulcis_N_Amer
+5   Almond_tree_Pfenzliana
+6   Almond_tree_Porientalis
+7   Almond_tree_Pspinosissima
