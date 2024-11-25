@@ -1,0 +1,81 @@
+---
+title: "Untitled"
+output: html_document
+date: "2024-10-28"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(data.table)
+library(ggstatsplot)
+getwd()
+rm(list = ls())
+
+```
+
+## stats
+
+```{r}
+liste_pop = c("Pdulcis_C_Asia", "Pdulcis_Euro_1", "Pdulcis_Euro_2", "Pdulcis_N_Amer", "Pfenzliana", "Porientalis", "Pspinosissima")
+
+
+files = list.files("../results")
+LD_stats = do.call(rbind, lapply(seq_along(files), function(i) {
+  info_LD = gsub(".popLD.out.stat","",files[i])
+  chr = (str_split(info_LD, pattern = "\\.", n = 2))[[1]][1]
+  pop = (str_split(info_LD, pattern = "\\.", n = 2))[[1]][2]
+  tmp = fread(paste0("../results/", files[i])) %>% 
+    mutate(population = pop, chromosome = chr)
+})) %>%
+  select(distance = `#Dist`, mean_r2 = `Mean_r^2`, population, chromosome)
+
+Max_LD = LD_stats %>% 
+  group_by(chromosome, population) %>% 
+  summarise(Max_LD = max(mean_r2)) %>% 
+  mutate(Distance = NA) 
+  
+for (k in 1:8) {
+  chr = paste0("Pd0", k)
+  for (i in 1:7) {
+    pop = liste_pop[i]
+    
+    half_max_LD = ((filter(Max_LD, population == pop) %>% filter(chromosome == chr))$Max_LD)/2
+    temp = filter (LD_stats, population == pop) %>% 
+      filter(chromosome == chr) 
+    index <- which.min(abs(temp$mean_r2 - half_max_LD))
+    closest_row <- temp[index, ]
+    Dist = closest_row$distance
+    
+    Max_LD$Distance[(i+(k-1)*7)] = Dist
+  }  
+}
+
+```
+
+## Including Plots
+
+
+```{r}
+
+sampled_data <- LD_stats %>%
+  group_by(population, chromosome) %>%
+  slice_sample(n = 1000)
+
+
+sampled_data %>% 
+  ggplot(aes(x = distance, y = mean_r2, color = population))+
+  geom_line(alpha = 1)+
+  scale_color_manual(values = c('Pdulcis_C_Asia' = '#8d5bb3',
+                                'Pdulcis_Euro_1' = '#47c5f3',
+                                'Pdulcis_Euro_2' = '#ffbb86',
+                                'Pdulcis_N_Amer' = '#cb3636',
+                                'Pfenzliana' = '#ffe38b',
+                                'Porientalis' = '#283f75',
+                                'Pspinosissima' = '#7b9e64'))+
+  
+  theme_ggstatsplot()
+
+```
+
