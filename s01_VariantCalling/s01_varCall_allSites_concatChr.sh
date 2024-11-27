@@ -21,12 +21,22 @@ chr=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' $conf
 cd ../results
 
 
-# bcftools concat $(for chr in Pd01 Pd02 Pd03 Pd04 Pd05 Pd06 Pd07 Pd08; do echo "${chr}_AllSites.vcf.gz"; done) -o "Almond_tree_AllSites.vcf.gz"
-
-# bcftools concat $(for chr in Pd01 Pd02 Pd03 Pd04 Pd05 Pd06 Pd07 Pd08; do echo "${chr}_AllSites.filtered.vcf.gz"; done) -o "Almond_tree_AllSites.filtered.vcf.gz"
-
-# bcftools concat $(for chr in Pd01 Pd02 Pd03 Pd04 Pd05 Pd06 Pd07 Pd08; do echo "${chr}_AllSites.filtered.dist500.vcf.gz"; done) -o "Almond_tree_AllSites.filtered.dist500.vcf.gz"
+bcftools concat $(for chr in Pd01 Pd02 Pd03 Pd04 Pd05 Pd06 Pd07 Pd08; do echo "${chr}_AllSites.vcf.gz"; done) -o "Almond_tree_AllSites.vcf.gz"
+bcftools concat $(for chr in Pd01 Pd02 Pd03 Pd04 Pd05 Pd06 Pd07 Pd08; do echo "${chr}_AllSites.filtered.vcf.gz"; done) -o "Almond_tree_AllSites.filtered.vcf.gz"
+bcftools concat $(for chr in Pd01 Pd02 Pd03 Pd04 Pd05 Pd06 Pd07 Pd08; do echo "${chr}_AllSites.filtered.dist500.vcf.gz"; done) -o "Almond_tree_AllSites.filtered.dist500.vcf.gz"
 
 tabix -p vcf Almond_tree_AllSites.vcf.gz
 tabix -p vcf Almond_tree_AllSites.filtered.vcf.gz
 tabix -p vcf Almond_tree_AllSites.filtered.dist500.vcf.gz
+
+
+bcftools view -i 'INFO/AC>0' Almond_tree_AllSites.vcf.gz -o Almond_tree_onlyVariants.vcf.gz
+
+vcftools --gzvcf Almond_tree_onlyVariants.vcf.gz \
+    --remove-indels \
+    --max-missing 0.8 \
+    --minDP 10 \
+    --maxDP 500 \
+    --recode --stdout | bgzip -c > Almond_tree_onlyVariants.filtered.vcf.gz
+
+tabix -p vcf Almond_tree_onlyVariants.filtered.vcf.gz 
