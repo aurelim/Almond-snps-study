@@ -23,10 +23,10 @@ path=/shared/projects/almond_dw_snp/4_FastSimCoal
 mkdir -p $path/results/fastsimcoal2/simulations_2/$motif/
 mkdir -p $path/results/fastsimcoal2/simulations_2/$motif/vcf
 cd $path/results/fastsimcoal2/simulations_2/$motif/
-# cp $path/results/Almond_tree_projMin/output/fastsimcoal2/${motif}_DAFpop0.obs .
-# cp $path/scripts/test.par .
+cp $path/results/Almond_tree_projMin/output/fastsimcoal2/${motif}_DAFpop0.obs .
+cp $path/scripts/test.par .
 
-# fsc27093 --ifile test.par -m --dnatosnp 1000000 --numsims 500 -I -G -g -k 1000000
+fsc27093 --ifile test.par -m --dnatosnp 1000000 --numsims 500 -I -G -g -k 1000000
 
 for i in $(seq 1 500)
 do
